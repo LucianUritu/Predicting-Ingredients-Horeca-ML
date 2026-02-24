@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load dataset
-df = pd.read_csv("synthetic_daily_item_sales.csv", parse_dates = ["sales_date"])
+df = pd.read_csv("data/raw/synthetic_daily_item_sales.csv", parse_dates = ["sales_date"])
 
 # Sort chronologically per store and item
 df = df.sort_values(["store_id", "menu_item_id", "sales_date"])
@@ -43,3 +43,40 @@ df["rolling_avg_28"] = (
 
 # Remove Early Rows Without Enough History
 df_model = df.dropna().reset_index(drop=True)
+
+features = [
+    "day_of_week",
+    "month",
+    "week_of_year",
+    "is_weekend",
+    "lag_1",
+    "lag_2",
+    "lag_7",
+    "lag_14",
+    "rolling_avg_7",
+    "rolling_avg_28"
+]
+
+X = df_model[features]
+y = df_model["quantity_sold"]
+
+cutoff_date = df_model["sales_date"].max() - pd.Timedelta(days=30)
+
+train = df_model[df_model["sales_date"] <= cutoff_date]
+test  = df_model[df_model["sales_date"] > cutoff_date]
+
+X_train = train[features]
+y_train = train["quantity_sold"]
+
+X_test = test[features]
+y_test = test["quantity_sold"]
+
+print("Data loaded successfully.")
+print("Shape of full dataset:", df.shape)
+print("Shape after feature engineering:", df_model.shape)
+
+print("Train shape:", train.shape)
+print("Test shape:", test.shape)
+
+print("\nFirst 5 rows of engineered dataset:")
+print(df_model.head())
