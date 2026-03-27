@@ -2,6 +2,9 @@
 from data import load_data, split_data
 from features import build_features
 
+from models import train_model, make_predictions
+from evaluation import evaluate_model
+
 def main():
     # 1. Load
     df = load_data()
@@ -39,6 +42,17 @@ def main():
     print("\nFirst 5 rows of engineered dataset:")
     print(df_model.head())
 
+    # 6. Train model
+    model = train_model(X_train, y_train)
+
+    # 7. Predict
+    predictions = make_predictions(model, X_test)
+
+    # 8. Evaluate
+    results = evaluate_model(y_test, predictions)
+
+    # 9. Debug prints
+    print("Model Performance: ", results)
 
 if __name__ == "__main__":
     main()
