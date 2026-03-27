@@ -1,0 +1,11 @@
+menu_item_id,ingredient_id,quantity
+item_1,beef,0.15
+item_1,bread,1
+item_2,chicken,0.12
+item_2,bread,1
+item_3,beef,0.18
+item_3,rice,0.2
+item_4,cheese,0.05
+item_4,bread,1
+item_5,vegetables,0.1
+item_5,bread,1

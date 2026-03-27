@@ -2,5 +2,5 @@
 
 from .loadData import load_data
 from .splitData import split_data
-
-__all__ = ["load_data", "split_data"]
+from .load_recipes import load_recipes
+__all__ = ["load_data", "split_data", "load_recipes"]
