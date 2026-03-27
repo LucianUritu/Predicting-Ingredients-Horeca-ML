@@ -2,7 +2,7 @@
 from data import load_data, split_data
 from features import build_features
 
-from models import train_model, make_predictions
+from models import train_model, make_predictions, predict_next_day
 from evaluation import evaluate_model
 
 def main():
@@ -53,6 +53,11 @@ def main():
 
     # 9. Debug prints
     print("Model Performance: ", results)
+
+    # 10. Predict next day
+    next_day_predictions = predict_next_day(df_model, model, features)
+    print("\nNext Day Predictions: ")
+    print(next_day_predictions.head())
 
 if __name__ == "__main__":
     main()
