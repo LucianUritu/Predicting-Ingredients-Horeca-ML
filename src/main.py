@@ -1,6 +1,6 @@
 
-from data import load_data, split_data, load_recipes
-from features import build_features, compute_ingredient_demand
+from data import load_data, split_data, load_recipes, load_inventory
+from features import build_features, compute_ingredient_demand, compute_order_quantity
 
 from models import train_model, make_predictions, predict_next_day
 from evaluation import evaluate_model
@@ -71,5 +71,19 @@ def main():
     ingredient_forecast["ingredient_quantity"] = ingredient_forecast["ingredient_quantity"].round(2)
     print ("\nIngredient Forecast:")
     print(ingredient_forecast.head())
+
+    # 13. Load inventory
+    inventory_df = load_inventory()
+
+    # 14. Compute order quantities
+    order_plan = compute_order_quantity(
+        ingredient_forecast,
+        inventory_df,
+        safety_factor=0.1
+    )
+
+    print("\nOrder Plan:")
+    print(order_plan.head())
+
 if __name__ == "__main__":
     main()
