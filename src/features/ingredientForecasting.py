@@ -10,8 +10,8 @@ def compute_ingredient_demand(predictions_df, recipes_df):
     )
     
     # Compute ingredient quantity
-    merged["ingredient_quality"] = (
-        merged["predicted_quality"] * merged["quantity"]
+    merged["ingredient_quantity"] = (
+        merged["predicted_quantity"] * merged["quantity"]
     )
 
     # Aggregate per store + ingredient

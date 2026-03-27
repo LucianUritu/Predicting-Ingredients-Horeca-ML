@@ -1,9 +1,10 @@
 
-from data import load_data, split_data
-from features import build_features
+from data import load_data, split_data, load_recipes
+from features import build_features, compute_ingredient_demand
 
 from models import train_model, make_predictions, predict_next_day
 from evaluation import evaluate_model
+
 
 def main():
     # 1. Load
@@ -59,5 +60,16 @@ def main():
     print("\nNext Day Predictions: ")
     print(next_day_predictions.head())
 
+    # 11. Load recipes
+    recipes_df = load_recipes()
+
+    # 12. Compute Ingredient Demand
+    ingredient_forecast = compute_ingredient_demand(
+        next_day_predictions,
+        recipes_df
+    )
+    ingredient_forecast["ingredient_quantity"] = ingredient_forecast["ingredient_quantity"].round(2)
+    print ("\nIngredient Forecast:")
+    print(ingredient_forecast.head())
 if __name__ == "__main__":
     main()
