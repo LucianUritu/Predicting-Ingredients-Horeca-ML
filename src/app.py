@@ -1,18 +1,10 @@
 import streamlit as st
 
-# DATA
 from data import load_data, split_data, load_recipes, load_inventory
-
-# FEATURES
 from features import build_features, compute_ingredient_demand, compute_order_quantity
-
-# MODELS
 from models import train_model, make_predictions, predict_next_7_days
-
-# EVALUATION
 from evaluation import evaluate_model
 
-# UI
 from src.ui import (
     render_header,
     render_sidebar,
@@ -23,9 +15,6 @@ from src.ui import (
     run_with_loading
 )
 
-# -----------------------------
-# PIPELINE (NO UI HERE ❗)
-# -----------------------------
 def run_pipeline(df):
 
     df_model = build_features(df)
@@ -44,15 +33,12 @@ def run_pipeline(df):
 
     results = evaluate_model(y_test, predictions)
 
-    # 🔥 ONLY generate full 7-day predictions
+   
     next_day_predictions = predict_next_7_days(df_model, model, features, days=7)
 
     return results, next_day_predictions
 
 
-# -----------------------------
-# MAIN APP
-# -----------------------------
 def main():
 
     render_header()
@@ -61,9 +47,6 @@ def main():
 
     selected_store, run_button = render_sidebar(df)
 
-    # -----------------------------
-    # RUN PIPELINE ONCE
-    # -----------------------------
     if run_button:
 
         def pipeline():
@@ -71,22 +54,16 @@ def main():
 
         results, next_day_predictions = run_with_loading(pipeline)
 
-        # 💾 SAVE RESULTS
         st.session_state["results"] = results
         st.session_state["predictions"] = next_day_predictions
 
-    # -----------------------------
-    # LOAD FROM SESSION
-    # -----------------------------
     if "results" not in st.session_state:
         return
 
     results = st.session_state["results"]
     next_day_predictions = st.session_state["predictions"]
 
-    # -----------------------------
-    # DATE SELECTOR (NOW WORKS!)
-    # -----------------------------
+
     available_dates = sorted(next_day_predictions["sales_date"].unique())
 
     selected_date = st.selectbox(
@@ -94,15 +71,12 @@ def main():
         available_dates
     )
 
-    # Filter by date + store
     filtered_predictions = next_day_predictions[
         (next_day_predictions["sales_date"] == selected_date) &
         (next_day_predictions["store_id"] == selected_store)
     ]
 
-    # -----------------------------
-    # INGREDIENT FORECAST
-    # -----------------------------
+
     recipes_df = load_recipes()
 
     ingredient_forecast = compute_ingredient_demand(
@@ -110,9 +84,7 @@ def main():
         recipes_df
     )
 
-    # -----------------------------
-    # ORDER PLAN
-    # -----------------------------
+
     inventory_df = load_inventory()
 
     order_plan = compute_order_quantity(
@@ -121,9 +93,6 @@ def main():
         safety_factor=0.1
     )
 
-    # -----------------------------
-    # DISPLAY
-    # -----------------------------
     render_metrics(results)
 
     render_table("📅 Item Forecast", filtered_predictions)
@@ -149,8 +118,5 @@ def main():
     render_download(order_plan, "order_plan.csv")
 
 
-# -----------------------------
-# ENTRY POINT
-# -----------------------------
 if __name__ == "__main__":
     main()
