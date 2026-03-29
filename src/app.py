@@ -1,6 +1,6 @@
 import streamlit as st
 
-from data import load_data, split_data, load_recipes, load_inventory
+from data import load_data, split_data, load_recipes, load_inventory, save_inventory
 from features import build_features, compute_ingredient_demand, compute_order_quantity
 from models import train_model, make_predictions, predict_next_7_days
 from evaluation import evaluate_model
@@ -12,7 +12,8 @@ from src.ui import (
     render_table,
     render_bar_chart,
     render_download,
-    run_with_loading
+    run_with_loading,
+    render_inventory_page
 )
 
 def run_pipeline(df):
@@ -63,60 +64,71 @@ def main():
     results = st.session_state["results"]
     next_day_predictions = st.session_state["predictions"]
 
+    tab1, tab2 = st.tabs(["📊 Forecast", "📦 Inventory"])
 
-    available_dates = sorted(next_day_predictions["sales_date"].unique())
+    # FORECAST TAB:
+    with tab1:
+        
+            
+        available_dates = sorted(next_day_predictions["sales_date"].unique())
 
-    selected_date = st.selectbox(
-        "📅 Select Forecast Day",
-        available_dates
-    )
+        selected_date = st.selectbox(
+            "📅 Select Forecast Day",
+            available_dates
+        )
 
-    filtered_predictions = next_day_predictions[
-        (next_day_predictions["sales_date"] == selected_date) &
-        (next_day_predictions["store_id"] == selected_store)
-    ]
-
-
-    recipes_df = load_recipes()
-
-    ingredient_forecast = compute_ingredient_demand(
-        filtered_predictions,
-        recipes_df
-    )
+        filtered_predictions = next_day_predictions[
+            (next_day_predictions["sales_date"] == selected_date) &
+            (next_day_predictions["store_id"] == selected_store)
+        ]
 
 
-    inventory_df = load_inventory()
+        recipes_df = load_recipes()
 
-    order_plan = compute_order_quantity(
-        ingredient_forecast,
-        inventory_df,
-        safety_factor=0.1
-    )
+        ingredient_forecast = compute_ingredient_demand(
+            filtered_predictions,
+            recipes_df
+        )
 
-    render_metrics(results)
 
-    render_table("📅 Item Forecast", filtered_predictions)
+        inventory_df = load_inventory()
 
-    render_table("🥩 Ingredient Forecast", ingredient_forecast)
+        order_plan = compute_order_quantity(
+            ingredient_forecast,
+            inventory_df,
+            safety_factor=0.1
+        )
 
-    render_bar_chart(
-        ingredient_forecast,
-        x_col="ingredient_id",
-        y_col="ingredient_quantity",
-        title="Ingredient Demand"
-    )
+        render_metrics(results)
 
-    render_table("🛒 Order Plan", order_plan)
+        render_table("📅 Item Forecast", filtered_predictions)
 
-    render_bar_chart(
-        order_plan,
-        x_col="ingredient_id",
-        y_col="order_quantity",
-        title="Order Quantities"
-    )
+        render_table("🥩 Ingredient Forecast", ingredient_forecast)
 
-    render_download(order_plan, "order_plan.csv")
+        render_bar_chart(
+            ingredient_forecast,
+            x_col="ingredient_id",
+            y_col="ingredient_quantity",
+            title="Ingredient Demand"
+        )
 
+        render_table("🛒 Order Plan", order_plan)
+
+        render_bar_chart(
+            order_plan,
+            x_col="ingredient_id",
+            y_col="order_quantity",
+            title="Order Quantities"
+        )
+
+        render_download(order_plan, "order_plan.csv")
+
+    with tab2:
+        invetory_df = load_inventory()
+        updated_inventory = render_inventory_page(inventory_df)
+        if st.button("💾 Save Inventory Changes"):
+            save_inventory(updated_inventory)
+            st.success("Inventory updated successfully!")
 
 if __name__ == "__main__":
     main()
