@@ -5,7 +5,7 @@ from features import build_features, compute_ingredient_demand, compute_order_qu
 from models import train_model, make_predictions, predict_next_7_days
 from evaluation import evaluate_model
 
-from ui import (
+from src.ui import (
     render_header,
     render_sidebar,
     render_metrics,
