@@ -3,7 +3,7 @@ import streamlit as st
 from data import load_recipes, load_inventory
 from features import compute_ingredient_demand, compute_order_quantity
 
-from src.ui import (
+from .. import (
     render_metrics,
     render_table,
     render_bar_chart,

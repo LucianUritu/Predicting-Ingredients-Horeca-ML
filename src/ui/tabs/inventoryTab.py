@@ -2,7 +2,7 @@ import streamlit as st
 
 from data import load_inventory, save_inventory
 
-from src.ui import (
+from .. import (
     render_inventory_page,
 )
 
