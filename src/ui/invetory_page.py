@@ -10,3 +10,4 @@ def render_inventory_page(inventory_df):
         num_rows="fixed",
         use_container_width=True
     )
+    return edited_df
