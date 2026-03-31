@@ -64,71 +64,62 @@ def main():
     results = st.session_state["results"]
     next_day_predictions = st.session_state["predictions"]
 
-    tab1, tab2 = st.tabs(["📊 Forecast", "📦 Inventory"])
+    if "active_tab" not in st.session_state:
+        st.session_state["active_tab"] = "📊 Forecast"
 
-    # FORECAST TAB:
-    with tab1:
-        
-            
+    tab_choice = st.radio(
+        "Select View:",
+        ["📊 Forecast", "📦 Inventory"],
+        index=["📊 Forecast", "📦 Inventory"].index(st.session_state["active_tab"]),
+        horizontal=True
+    )
+    st.session_state["active_tab"] = tab_choice
+
+    if tab_choice == "📊 Forecast":
         available_dates = sorted(next_day_predictions["sales_date"].unique())
-
         selected_date = st.selectbox(
             "📅 Select Forecast Day",
             available_dates
         )
-
         filtered_predictions = next_day_predictions[
             (next_day_predictions["sales_date"] == selected_date) &
             (next_day_predictions["store_id"] == selected_store)
         ]
-
-
         recipes_df = load_recipes()
-
         ingredient_forecast = compute_ingredient_demand(
             filtered_predictions,
             recipes_df
         )
-
-
         inventory_df = load_inventory()
-
         order_plan = compute_order_quantity(
             ingredient_forecast,
             inventory_df,
             safety_factor=0.1
         )
-
         render_metrics(results)
-
         render_table("📅 Item Forecast", filtered_predictions)
-
         render_table("🥩 Ingredient Forecast", ingredient_forecast)
-
         render_bar_chart(
             ingredient_forecast,
             x_col="ingredient_id",
             y_col="ingredient_quantity",
             title="Ingredient Demand"
         )
-
         render_table("🛒 Order Plan", order_plan)
-
         render_bar_chart(
             order_plan,
             x_col="ingredient_id",
             y_col="order_quantity",
             title="Order Quantities"
         )
-
         render_download(order_plan, "order_plan.csv")
-
-    with tab2:
-        invetory_df = load_inventory()
+    elif tab_choice == "📦 Inventory":
+        inventory_df = load_inventory()
         updated_inventory = render_inventory_page(inventory_df)
         if st.button("💾 Save Inventory Changes"):
             save_inventory(updated_inventory)
             st.success("Inventory updated successfully!")
+            st.session_state["active_tab"] = "📦 Inventory"
 
 if __name__ == "__main__":
     main()
