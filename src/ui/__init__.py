@@ -1,11 +1,13 @@
-from .layout import render_header
-from .sidebar import render_sidebar
-from .metrics import render_metrics
-from .tables import render_table
-from .charts import render_bar_chart
-from .controls import render_download
-from .loading import run_with_loading
-from .invetory_page import render_inventory_page
+from .components.layout import render_header
+from .components.sidebar import render_sidebar
+from .components.metrics import render_metrics
+from .components.tables import render_table
+from .components.charts import render_bar_chart
+from .components.controls import render_download
+from .components.loading import run_with_loading
+from .components.invetory_page import render_inventory_page
+from .tabs.forecastTab import show_forecast_tab
+from .tabs.inventoryTab import show_inventory_tab
 __all__ = [
     "render_header",
     "render_sidebar",
@@ -14,5 +16,7 @@ __all__ = [
     "render_bar_chart",
     "render_download",
     "run_with_loading",
-    "render_inventory_page"
+    "render_inventory_page",
+    "show_forecast_tab",
+    "show_inventory_tab"
 ]
