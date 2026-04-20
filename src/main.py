@@ -2,7 +2,7 @@
 from data import load_data, split_data, load_recipes, load_inventory
 from features import build_features, compute_ingredient_demand, compute_order_quantity
 
-from models import train_model, make_predictions, predict_next_day
+from models import train_model, make_predictions, predict_next_day, predict_next_7_days
 from evaluation import evaluate_model
 
 
@@ -56,7 +56,8 @@ def main():
     print("Model Performance: ", results)
 
     # 10. Predict next day
-    next_day_predictions = predict_next_day(df_model, model, features)
+    #next_day_predictions = predict_next_day(df_model, model, features)
+    next_day_predictions = predict_next_7_days(df_model, model, features, days=7)
     print("\nNext Day Predictions: ")
     print(next_day_predictions.head())
 

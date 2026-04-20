@@ -16,7 +16,13 @@ def predict_next_7_days(df, model, features, days=7):
             group = group.sort_values("sales_date")
 
             last_28_days = group.tail(28)
-            
+            # Safeguard for lag features
+            def get_lag(idx, default=0):
+                try:
+                    return last_28_days.iloc[idx]["quantity_sold"]
+                except IndexError:
+                    return default
+
             row = {
                 "store_id": store,
                 "menu_item_id": item,
@@ -25,14 +31,14 @@ def predict_next_7_days(df, model, features, days=7):
                 "month": next_date.month,
                 "week_of_year": next_date.isocalendar().week,
                 "is_weekend": 1 if next_date.weekday() >= 5 else 0,
-                "lag_1": last_28_days.iloc[-1]["quantity_sold"],
-                "lag_2": last_28_days.iloc[-2]["quantity_sold"],
-                "lag_7": last_28_days.iloc[-7]["quantity_sold"],
-                "lag_14": last_28_days.iloc[-14]["quantity_sold"],
-                "rolling_avg_7": last_28_days["quantity_sold"].tail(7).mean(),
-                "rolling_avg_28": last_28_days["quantity_sold"].mean(),
+                "lag_1": get_lag(-1),
+                "lag_2": get_lag(-2),
+                "lag_7": get_lag(-7),
+                "lag_14": get_lag(-14),
+                "rolling_avg_7": last_28_days["quantity_sold"].tail(7).mean() if len(last_28_days) >= 1 else 0,
+                "rolling_avg_28": last_28_days["quantity_sold"].mean() if len(last_28_days) >= 1 else 0,
             }
-            
+
             predictions.append(row)
 
         pred_df = pd.DataFrame(predictions)
