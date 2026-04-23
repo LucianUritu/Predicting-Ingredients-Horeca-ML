@@ -2,7 +2,7 @@ import streamlit as st
 
 from data import load_data, split_data, load_recipes, load_inventory, save_inventory
 from features import build_features, compute_ingredient_demand, compute_order_quantity
-from models import train_model, make_predictions, predict_next_7_days
+from models import train_model, make_predictions, predict_next_7_days, predict_next_day
 from evaluation import evaluate_model
 
 from ui import (
@@ -38,7 +38,8 @@ def run_pipeline(df):
     results = evaluate_model(y_test, predictions)
 
    
-    next_day_predictions = predict_next_7_days(df_model, model, features, days=7)
+
+    next_day_predictions = predict_next_day(df_model, model, features)
 
     return results, next_day_predictions
 
