@@ -16,7 +16,7 @@ def predict_next_day(df, model, features):
     df = df[df["sales_date"] <= current_day].copy()
 
     # Predict next day (t + 1)
-    next_date = current_day + pd.Timedelta(days=1)
+    next_date = pd.Timestamp.today().normalize()
 
     predictions = []
     group_cols = ["store_id", "menu_item_id"]
