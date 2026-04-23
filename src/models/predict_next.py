@@ -6,7 +6,7 @@ def predict_next_day(df, model, features):
     """
 
     # Get last available data (t)
-    last_date = df["sales_date"].max()
+    last_date = pd.Timestamp.today().normalize()
 
     # Create next day (t + 1)
     next_date = last_date + pd.Timedelta(days=1)
