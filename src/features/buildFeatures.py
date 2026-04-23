@@ -16,19 +16,21 @@ def build_features(df):
     df["lag_7"]  = df.groupby(group_cols)["quantity_sold"].shift(7)
     df["lag_14"] = df.groupby(group_cols)["quantity_sold"].shift(14)
 
+    shifted = df.groupby(group_cols)["quantity_sold"].shift(1)
+
     # Rolling features
     df["rolling_avg_7"] = (
-        df.groupby(group_cols)["quantity_sold"]
-          .shift(1)
-          .rolling(7)
-          .mean()
+        shifted.groupby([df["store_id"], df["menu_item_id"]])
+        .rolling(window=7)
+        .mean()
+        .reset_index(level=[0, 1], drop=True)
     )
 
     df["rolling_avg_28"] = (
-        df.groupby(group_cols)["quantity_sold"]
-          .shift(1)
-          .rolling(28)
-          .mean()
+        shifted.groupby([df["store_id"], df["menu_item_id"]])
+        .rolling(window=28)
+        .mean()
+        .reset_index(level=[0, 1], drop=True)
     )
 
     df = df.dropna().reset_index(drop=True)
