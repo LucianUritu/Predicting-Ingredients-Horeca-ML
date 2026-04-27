@@ -57,6 +57,7 @@ def main():
             if check_login(username, password):
                 st.session_state["logged_in"] = True
                 st.success("Login successful!")
+                st.experimental_rerun()
             else:
                 st.error("Invalid username or password.")
         return
