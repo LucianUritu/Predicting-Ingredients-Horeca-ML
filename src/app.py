@@ -4,6 +4,7 @@ from data import load_data, split_data, load_recipes, load_inventory, save_inven
 from features import build_features, compute_ingredient_demand, compute_order_quantity
 from models import train_model, make_predictions, predict_next_7_days, predict_next_day
 from evaluation import evaluate_model
+from login import check_login
 
 from ui import (
     render_header,
@@ -45,6 +46,20 @@ def run_pipeline(df):
 
 
 def main():
+    if "logged_in" not in st.session_state:
+        st.session_state["logged_in"] = False
+
+    if not st.session_state["logged_in"]:
+        st.title("Login")
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        if st.button("Login"):
+            if check_login(username, password):
+                st.session_state["logged_in"] = True
+                st.success("Login successful!")
+            else:
+                st.error("Invalid username or password.")
+        return
 
     render_header()
 
