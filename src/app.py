@@ -5,6 +5,7 @@ from features import build_features, compute_ingredient_demand, compute_order_qu
 from models import train_model, make_predictions, predict_next_7_days, predict_next_day
 from evaluation import evaluate_model
 from login import check_login
+from preprocessing import normalize_products
 
 from ui import (
     render_header,
