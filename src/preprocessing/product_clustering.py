@@ -4,6 +4,8 @@ from collections.abc import Mapping
 
 import pandas as pd
 
+DEFAULT_EXCLUDED_PREFIXES = ("cu ", "fara ", "sos ")
+
 
 def clean_product_name(name: str) -> str:
     """Normalise harmless POS formatting without changing product meaning.
@@ -31,6 +33,36 @@ def load_product_aliases(path) -> dict[str, str]:
         clean_product_name(source): canonical.strip()
         for source, canonical in aliases[["source_name", "canonical_name"]].dropna().itertuples(index=False)
     }
+
+
+def load_product_exclusions(path) -> set[str]:
+    """Load reviewed exact product names to omit from forecasting."""
+    exclusions = pd.read_csv(path)
+    if "product_name" not in exclusions.columns:
+        raise ValueError("Product exclusions are missing the 'product_name' column")
+
+    return {
+        clean_product_name(name)
+        for name in exclusions["product_name"].dropna()
+    }
+
+
+def filter_forecastable_products(
+    df: pd.DataFrame,
+    product_col: str = "menu_item_id",
+    exclusions: set[str] | None = None,
+) -> pd.DataFrame:
+    """Remove modifiers and non-menu POS entries before forecasting.
+
+    Prefix rules capture generic modifier/sauce rows. Restaurant-specific
+    exclusions provide a safe escape hatch for any other POS-only product.
+    """
+    exclusions = {clean_product_name(name) for name in (exclusions or set())}
+    normalized_names = df[product_col].map(clean_product_name)
+    is_modifier_or_sauce = normalized_names.str.startswith(DEFAULT_EXCLUDED_PREFIXES)
+    is_explicitly_excluded = normalized_names.isin(exclusions)
+
+    return df.loc[~(is_modifier_or_sauce | is_explicitly_excluded)].copy()
 
 
 def build_product_mapping(

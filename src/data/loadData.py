@@ -4,17 +4,24 @@ import pandas as pd
 from .clean_sales_data import clean_sales_data
 from .build_daily_sales_grid import build_daily_sales_grid
 from .filter_items import filter_items_by_min_history
-from preprocessing import load_product_aliases, normalize_products
+from preprocessing import (
+    filter_forecastable_products,
+    load_product_aliases,
+    load_product_exclusions,
+    normalize_products,
+)
 
 DEFAULT_MIN_DAYS_PER_ITEM = 30
 DEFAULT_FILENAME = "starkebab_portmall_2025-2026.csv"
 ALIASES_DIRECTORY = "aliases"
+EXCLUSIONS_DIRECTORY = "exclusions"
 
 
 def load_data(
     filename: str = DEFAULT_FILENAME,
     min_days_per_item: int = DEFAULT_MIN_DAYS_PER_ITEM,
     aliases_filename: str | None = None,
+    exclusions_filename: str | None = None,
 ) -> pd.DataFrame:
     """
     Load raw client sales data and return a cleaned daily time series.
@@ -25,6 +32,11 @@ def load_data(
     df = pd.read_csv(file_path)
 
     df = clean_sales_data(df)
+    exclusions_filename = exclusions_filename or f"{file_path.stem}.csv"
+    exclusions_path = base_dir / "data" / EXCLUSIONS_DIRECTORY / exclusions_filename
+    exclusions = load_product_exclusions(exclusions_path) if exclusions_path.exists() else set()
+    df = filter_forecastable_products(df, exclusions=exclusions)
+
     # Each sales export gets its own reviewed alias file. The normalisation
     # code remains reusable and no restaurant's menu rules affect another's.
     aliases_filename = aliases_filename or f"{file_path.stem}.csv"

@@ -8,7 +8,12 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from preprocessing import build_product_mapping, clean_product_name, normalize_products
+from preprocessing import (
+    build_product_mapping,
+    clean_product_name,
+    filter_forecastable_products,
+    normalize_products,
+)
 
 
 class ProductNormalizationTests(unittest.TestCase):
@@ -51,6 +56,18 @@ class ProductNormalizationTests(unittest.TestCase):
 
         self.assertEqual(normalized["menu_item_id"].tolist(), ["Veggie Bowl"] * 3)
         self.assertEqual(normalized["quantity_sold"].sum(), 9)
+
+    def test_filter_removes_modifiers_sauces_and_explicit_exclusions(self):
+        sales = pd.DataFrame(
+            {
+                "menu_item_id": ["Burger", "cu Sos BBQ", "fără ceapă", "Sos Ketchup", "Bag"],
+                "quantity_sold": [1, 1, 1, 1, 1],
+            }
+        )
+
+        filtered = filter_forecastable_products(sales, exclusions={"Bag"})
+
+        self.assertEqual(filtered["menu_item_id"].tolist(), ["Burger"])
 
 
 if __name__ == "__main__":

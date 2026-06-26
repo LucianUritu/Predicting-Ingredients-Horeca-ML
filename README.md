@@ -21,3 +21,10 @@ these mappings with the restaurant: automatic fuzzy matching is deliberately
 not used because incorrectly combining two menu products would corrupt the
 forecast. Alias files are client-specific; the cleanup code itself only makes
 safe, reusable formatting changes.
+
+## Forecast exclusions
+
+Modifier rows (`cu ...`, `fără ...`) and standalone sauces (`Sos ...`) are
+removed from every forecast automatically. To omit other POS-only rows for one
+restaurant, create `data/exclusions/<sales-export-name>.csv` with a
+`product_name` column. These exclusions are client-specific, just like aliases.
