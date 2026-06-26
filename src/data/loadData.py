@@ -8,11 +8,14 @@ from preprocessing import load_product_aliases, normalize_products
 
 DEFAULT_MIN_DAYS_PER_ITEM = 30
 DEFAULT_FILENAME = "starkebab_portmall_2025-2026.csv"
-DEFAULT_ALIASES_FILENAME = "product_aliases.csv"
+ALIASES_DIRECTORY = "aliases"
 
 
-def load_data(filename: str = DEFAULT_FILENAME, 
-              min_days_per_item: int = DEFAULT_MIN_DAYS_PER_ITEM,) -> pd.DataFrame:
+def load_data(
+    filename: str = DEFAULT_FILENAME,
+    min_days_per_item: int = DEFAULT_MIN_DAYS_PER_ITEM,
+    aliases_filename: str | None = None,
+) -> pd.DataFrame:
     """
     Load raw client sales data and return a cleaned daily time series.
     """
@@ -22,7 +25,10 @@ def load_data(filename: str = DEFAULT_FILENAME,
     df = pd.read_csv(file_path)
 
     df = clean_sales_data(df)
-    aliases_path = base_dir / "data" / DEFAULT_ALIASES_FILENAME
+    # Each sales export gets its own reviewed alias file. The normalisation
+    # code remains reusable and no restaurant's menu rules affect another's.
+    aliases_filename = aliases_filename or f"{file_path.stem}.csv"
+    aliases_path = base_dir / "data" / ALIASES_DIRECTORY / aliases_filename
     aliases = load_product_aliases(aliases_path) if aliases_path.exists() else {}
     df = normalize_products(df, aliases=aliases)
     # Alias replacement can make formerly separate rows share one day/item.

@@ -1,12 +1,19 @@
 import re
+import unicodedata
 from collections.abc import Mapping
 
 import pandas as pd
 
 
 def clean_product_name(name: str) -> str:
-    """Normalise harmless POS formatting without changing the product meaning."""
-    name = str(name).lower()
+    """Normalise harmless POS formatting without changing product meaning.
+
+    This rule is intentionally restaurant-neutral: it handles case, accents,
+    whitespace, and stray formatting characters, but never removes food words,
+    sizes, promotions, or other business-specific terms.
+    """
+    name = unicodedata.normalize("NFKD", str(name)).encode("ascii", "ignore").decode("ascii")
+    name = name.casefold()
     name = re.sub(r"[*_()\[\]{}\-]", " ", name)
     name = re.sub(r"\s+", " ", name).strip()
 
