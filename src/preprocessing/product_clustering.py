@@ -1,6 +1,18 @@
 import re
+from difflib import SequenceMatcher
+
 import pandas as pd
-import rapidfuzz as fuzz
+
+
+def token_sort_ratio(left: str, right: str) -> float:
+    """Return a 0-100 similarity score after sorting each name's words.
+
+    This mirrors the comparison style formerly supplied by ``rapidfuzz`` while
+    keeping product normalization runnable on a plain Streamlit deployment.
+    """
+    sorted_left = " ".join(sorted(left.split()))
+    sorted_right = " ".join(sorted(right.split()))
+    return SequenceMatcher(None, sorted_left, sorted_right).ratio() * 100
 
 def clean_product_name(name: str) -> str:
     name = str(name).lower()
@@ -27,7 +39,7 @@ def cluster_product_names(product_names, threshold: int = 85):
         for cluster in clusters:
             representative = cluster[0]
 
-            score = fuzz.token_sort_ratio(cleaned_name, representative)
+            score = token_sort_ratio(cleaned_name, representative)
 
             if score >= threshold:
                 cluster.append(cleaned_name)
